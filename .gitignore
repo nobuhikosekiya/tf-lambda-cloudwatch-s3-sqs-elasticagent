@@ -28,3 +28,4 @@ terraform.rc
 
 *.zip
 
+.DS_Store
