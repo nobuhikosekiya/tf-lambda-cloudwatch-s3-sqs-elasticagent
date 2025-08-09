@@ -31,7 +31,6 @@ parser.add_argument("--log-group", required=True, help="CloudWatch log group nam
 parser.add_argument("--s3-bucket", required=True, help="S3 bucket name")
 parser.add_argument("--sqs-queue-url", required=True, help="SQS queue URL")
 parser.add_argument("--region", default="ap-northeast-1", help="AWS region")
-parser.add_argument("--prefix", help="S3 object prefix to check")
 parser.add_argument("--wait-time", type=int, default=180, help="Time to wait for logs to appear in S3 (seconds)")
 args = parser.parse_args()
 
@@ -107,7 +106,7 @@ def check_cloudwatch_logs(log_group_name):
         logger.error(f"Error checking CloudWatch logs: {e}")
         return False
 
-def wait_for_s3_objects(bucket_name, prefix=None, wait_time=180):
+def wait_for_s3_objects(bucket_name, wait_time=600):
     """Wait for objects to appear in S3 bucket"""
     logger.info(f"Waiting up to {wait_time} seconds for objects to appear in S3 bucket {bucket_name}...")
     
@@ -117,8 +116,6 @@ def wait_for_s3_objects(bucket_name, prefix=None, wait_time=180):
         try:
             # List objects in bucket
             kwargs = {'Bucket': bucket_name}
-            if prefix:
-                kwargs['Prefix'] = prefix
             
             response = s3_client.list_objects_v2(**kwargs)
             
@@ -193,7 +190,7 @@ def main():
         success = False
     
     # Step 4: Wait for logs to be delivered to S3
-    s3_objects = wait_for_s3_objects(args.s3_bucket, args.prefix, args.wait_time)
+    s3_objects = wait_for_s3_objects(args.s3_bucket, args.wait_time)
     if not s3_objects:
         logger.error("Failed to find objects in S3 bucket")
         success = False
