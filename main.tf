@@ -6,15 +6,8 @@ resource "aws_key_pair" "elastic_key" {
 
 # S3 Bucket for logs
 resource "aws_s3_bucket" "log_bucket" {
-  bucket        = "${var.prefix}-${var.s3_bucket_prefix}-${random_string.suffix.result}"
+  bucket        = "${var.prefix}-${var.s3_bucket_prefix}"
   force_destroy = true
-}
-
-resource "random_string" "suffix" {
-  length  = 8
-  special = false
-  lower   = true
-  upper   = false
 }
 
 # S3 Bucket ownership controls
